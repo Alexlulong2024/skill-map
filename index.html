@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技能地图 · Skill Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-hover: #252532;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7b;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-pink: #ec4899;
+            --border-color: #2a2a3a;
+            --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            color: var(--accent-purple);
+            margin-bottom: 24px;
+        }
+
+        .hero-badge::before {
+            content: '◆';
+            font-size: 10px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        /* Category Section */
+        .category {
+            margin-bottom: 60px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .category-icon.cognitive { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+        .category-icon.output { background: rgba(236, 72, 153, 0.15); color: var(--accent-pink); }
+        .category-icon.network { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .category-icon.system { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .category-count {
+            margin-left: auto;
+            background: var(--bg-card);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Skills Grid */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .skill-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .skill-card:hover {
+            background: var(--bg-hover);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .skill-card:hover::before {
+            opacity: 1;
+        }
+
+        .skill-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .skill-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .skill-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .skill-tag.direct {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .skill-tag.trigger {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+        }
+
+        .skill-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .skill-triggers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .trigger-badge {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        /* Quick Reference */
+        .quick-ref {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 48px;
+            margin-top: 60px;
+        }
+
+        .quick-ref h2 {
+            font-size: 1.75rem;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .quick-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .quick-table th,
+        .quick-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .quick-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .quick-table td {
+            color: var(--text-secondary);
+        }
+
+        .quick-table tr:hover td {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .trigger-keyword {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        footer a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 60px 20px 40px;
+            }
+
+            .stats-bar {
+                gap: 24px;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-ref {
+                padding: 24px;
+            }
+
+            .quick-table {
+                font-size: 14px;
+            }
+
+            .quick-table th,
+            .quick-table td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">WorkBuddy Skills</div>
+            <h1>技能地图</h1>
+            <p class="hero-subtitle">16 个已安装技能，覆盖认知、输出、联网、系统四大领域</p>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-number">16</div>
+                    <div class="stat-label">总技能数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">13</div>
+                    <div class="stat-label">可直接调用</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">分类</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- 认知原子 -->
+        <section class="category">
+            <div class="category-header">
+                <div class="category-icon cognitive">◆</div>
+                <h2 class="category-title">认知原子</h2>
+                <span class="category-count">13 个</span>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-plain</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">白 — 用大白话解释复杂概念，让聪明人12岁就能懂</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">白话说</span>
+                        <span class="trigger-badge">说人话</span>
+                        <span class="trigger-badge">plain</span>
+                        <span class="trigger-badge">grok</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-word</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">英文单词深度拆解，掌握核心语义和顿悟</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">单词</span>
+                        <span class="trigger-badge">word</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-writes</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">写作引擎，带着观点出发，在写的过程中想透</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">写作</span>
+                        <span class="trigger-badge">writes</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-paper</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">论文阅读与分析，为非学术人士提取核心观点</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">读论文</span>
+                        <span class="trigger-badge">paper</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-paper-flow</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">论文流：读论文 + 做卡片，一次完成分析与可视化</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">论文流</span>
+                        <span class="trigger-badge">paper flow</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-rank</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">降秩 — 找出领域背后真正支撑的几根独立力量</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">降秩</span>
+                        <span class="trigger-badge">找秩</span>
+                        <span class="trigger-badge">背后是什么</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-relationship</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">关系分析，结构性诊断 + 精神分析深度</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">关系分析</span>
+                        <span class="trigger-badge">relationship</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-roundtable</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">圆桌讨论，多视角结构化辩论探索话题</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">圆桌讨论</span>
+                        <span class="trigger-badge">roundtable</span>
+                        <span class="trigger-badge">辩论</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-learn</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">概念解剖，八维度深度解构任何概念</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">解剖概念</span>
+                        <span class="trigger-badge">概念解剖</span>
+                        <span class="trigger-badge">learn concept</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-invest</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">投资分析，判断项目是否是「秩序创造机器」</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">投资报告</span>
+                        <span class="trigger-badge">投资分析</span>
+                        <span class="trigger-badge">invest</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-card</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">铸 — 内容转 PNG 可视化，六种模具可选</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">铸</span>
+                        <span class="trigger-badge">cast</span>
+                        <span class="trigger-badge">做成图</span>
+                        <span class="trigger-badge">做成卡片</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-word-flow</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">词卡流：单词分析 + 信息图，一次完成</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">词卡</span>
+                        <span class="trigger-badge">word card</span>
+                        <span class="trigger-badge">word flow</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-travel</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">旅行研究，博物馆与古建深度功课</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">旅行研究</span>
+                        <span class="trigger-badge">博物馆功课</span>
+                        <span class="trigger-badge">travel research</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 输出铸造 -->
+        <section class="category">
+            <div class="category-header">
+                <div class="category-icon output">▲</div>
+                <h2 class="category-title">输出铸造</h2>
+                <span class="category-count">2 个</span>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-card</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">铸 — 内容转 PNG 可视化，六种模具可选</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">铸</span>
+                        <span class="trigger-badge">cast</span>
+                        <span class="trigger-badge">做成图</span>
+                        <span class="trigger-badge">做成卡片</span>
+                        <span class="trigger-badge">做成信息图</span>
+                        <span class="trigger-badge">做成海报</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-word-flow</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">词卡流：单词分析 + 信息图，一次完成</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">词卡</span>
+                        <span class="trigger-badge">word card</span>
+                        <span class="trigger-badge">word flow</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 联网触达 -->
+        <section class="category">
+            <div class="category-header">
+                <div class="category-icon network">●</div>
+                <h2 class="category-title">联网触达</h2>
+                <span class="category-count">6 个</span>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">xiaohongshu</span>
+                        <span class="skill-tag trigger">触发词</span>
+                    </div>
+                    <p class="skill-desc">小红书内容搜索、发布、互动与数据分析</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">小红书</span>
+                        <span class="trigger-badge">发布笔记</span>
+                        <span class="trigger-badge">xhs</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">hotspot-radar</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">每日热搜 + SEO 关键词评分，辅助内容选题</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">热搜</span>
+                        <span class="trigger-badge">热词</span>
+                        <span class="trigger-badge">选题参考</span>
+                        <span class="trigger-badge">SEO评分</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">内容总结</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">总结 URL 或文件内容，支持网页、PDF、图片、音频、YouTube</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">总结</span>
+                        <span class="trigger-badge">summarize</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">腾讯文档</span>
+                        <span class="skill-tag trigger">触发词</span>
+                    </div>
+                    <p class="skill-desc">腾讯文档创建、编辑、管理，支持多种文档类型</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">腾讯文档</span>
+                        <span class="trigger-badge">新建文档</span>
+                        <span class="trigger-badge">docs.qq.com</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">nano-banana-pro</span>
+                        <span class="skill-tag trigger">触发词</span>
+                    </div>
+                    <p class="skill-desc">AI 图片生成与编辑，支持 4K 输出</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">生成图片</span>
+                        <span class="trigger-badge">生成视频</span>
+                        <span class="trigger-badge">AI生成</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">openai-whisper</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">本地语音转文字，无需 API 密钥</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">语音转文字</span>
+                        <span class="trigger-badge">whisper</span>
+                        <span class="trigger-badge">转录</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 系统运维 -->
+        <section class="category">
+            <div class="category-header">
+                <div class="category-icon system">■</div>
+                <h2 class="category-title">系统运维</h2>
+                <span class="category-count">10 个</span>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">elon-review</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">第一性原理 + 五步算法审视，系统性分析决策问题</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">审视一下</span>
+                        <span class="trigger-badge">elon review</span>
+                        <span class="trigger-badge">第一性原理</span>
+                        <span class="trigger-badge">五步算法</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">design-md</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">设计规范参考库，66+ 品牌风格模板</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">做个好看的页面</span>
+                        <span class="trigger-badge">用XX品牌的风格</span>
+                        <span class="trigger-badge">生成匹配XX的UI</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">find-skills</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">发现和安装新技能，扩展智能体能力</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">找技能</span>
+                        <span class="trigger-badge">发现技能</span>
+                        <span class="trigger-badge">find skills</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">skill-vetter</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">技能安装前安全检查，识别潜在风险</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">检查技能</span>
+                        <span class="trigger-badge">安全审查</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">ljg-skill-map</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">技能地图查看，可视化展示已安装技能</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">技能地图</span>
+                        <span class="trigger-badge">skill map</span>
+                        <span class="trigger-badge">我有哪些技能</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">mcporter</span>
+                        <span class="skill-tag trigger">触发词</span>
+                    </div>
+                    <p class="skill-desc">MCP 服务器管理与调用</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">MCP</span>
+                        <span class="trigger-badge">mcporter</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">workbuddy-channel-setup</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">自动配置飞书、QQ Bot 渠道集成</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">配置飞书</span>
+                        <span class="trigger-badge">接入飞书</span>
+                        <span class="trigger-badge">配置QQ</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">自动安装IM渠道</span>
+                        <span class="skill-tag trigger">触发词</span>
+                    </div>
+                    <p class="skill-desc">自动配置飞书/QQ Bot 渠道集成</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">配置飞书</span>
+                        <span class="trigger-badge">接入飞书</span>
+                        <span class="trigger-badge">配置QQ</span>
+                        <span class="trigger-badge">QQ机器人</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">book-writer</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">人机协同写书，含去AI味规则与排版构建</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">写书</span>
+                        <span class="trigger-badge">写手册</span>
+                        <span class="trigger-badge">book writer</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <span class="skill-name">humanizer</span>
+                        <span class="skill-tag direct">/调用</span>
+                    </div>
+                    <p class="skill-desc">去除文本中的 AI 写作痕迹</p>
+                    <div class="skill-triggers">
+                        <span class="trigger-badge">去AI味</span>
+                        <span class="trigger-badge">humanize</span>
+                        <span class="trigger-badge">去AI痕迹</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="quick-ref">
+            <h2>常用技能速查表</h2>
+            <table class="quick-table">
+                <thead>
+                    <tr>
+                        <th>触发词</th>
+                        <th>技能</th>
+                        <th>用途</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="trigger-keyword">elon review</span> / <span class="trigger-keyword">审视一下</span></td>
+                        <td>elon-review</td>
+                        <td>用第一性原理分析决策</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">做个好看的页面</span> / <span class="trigger-keyword">用Stripe风格</span></td>
+                        <td>design-md</td>
+                        <td>生成品牌风格HTML</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">铸</span> / <span class="trigger-keyword">做成图</span></td>
+                        <td>ljg-card</td>
+                        <td>内容转PNG卡片</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">热搜</span> / <span class="trigger-keyword">热词</span></td>
+                        <td>hotspot-radar</td>
+                        <td>查每日热搜+SEO评分</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">论文流</span> / <span class="trigger-keyword">读论文</span></td>
+                        <td>ljg-paper-flow</td>
+                        <td>读论文+做卡片</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">白话说</span> / <span class="trigger-keyword">说人话</span></td>
+                        <td>ljg-plain</td>
+                        <td>用大白话解释</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">降秩</span> / <span class="trigger-keyword">找秩</span></td>
+                        <td>ljg-rank</td>
+                        <td>找领域核心生成器</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">概念解剖</span></td>
+                        <td>ljg-learn</td>
+                        <td>深度拆解概念</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">投资报告</span></td>
+                        <td>ljg-invest</td>
+                        <td>生成投资分析报告</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">圆桌讨论</span></td>
+                        <td>ljg-roundtable</td>
+                        <td>多视角辩论</td>
+                    </tr>
+                    <tr>
+                        <td><span class="trigger-keyword">关系分析</span></td>
+                        <td>ljg-relationship</td>
+                        <td>人际关系诊断</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <footer>
+        <p>WorkBuddy Skills Map · 最后更新：2026-04-14</p>
+        <p style="margin-top: 8px;">通过 <a href="https://github.com/Alexlulong2024">GitHub</a> 部署</p>
+    </footer>
+</body>
+</html>
